@@ -1,99 +1,121 @@
-# Pixel Bites — strona restauracji w konwencji pixel-artowego automatu
+# Pixel Bites
 
-Landing page, który ma zapaść w pamięć w trzy sekundy: pixel-artowa oprawa, płynne
-przewijanie, własny kursor i animowane tło 3D w WebGL.
+**Strona restauracji w konwencji pixel-artowego automatu, z filmową prezentacją lokalu i burgerem rozkładanym na składniki podczas przewijania.**
 
-**Na żywo:** [pixel-bites-tawny.vercel.app](https://pixel-bites-tawny.vercel.app)
+**Strona: [pixel-bites-tawny.vercel.app](https://pixel-bites-tawny.vercel.app)**
 
-Projekt zaczął się jako **jeden plik `pixelbites3.html`** z bibliotekami z CDN.
-Ta wersja to przepisanie go na **React 18 + Vite + TypeScript** z zależnościami
-z npm — przy zachowaniu wyglądu i zachowania jeden do jednego.
+Restauracja jest fikcyjna — dane lokalu i odnośniki społecznościowe są demonstracyjne.
 
-## Po co było przepisywać
+![Strona główna Pixel Bites w stylistyce pixel art](docs/zrzuty/d-start.webp)
 
-Jednoplikowy HTML działał, ale każda zmiana oznaczała skakanie po kilkuset liniach
-przemieszanego znacznika, stylu i skryptu. Po podziale każda sekcja strony jest
-osobnym komponentem, a **cała logika imperatywna siedzi w jednym hooku**
-(`useExperience`) — zamiast być rozsypana po pliku. Biblioteki z npm zamiast CDN
-oznaczają też przypięte wersje i brak zależności od cudzego serwera przy wczytywaniu.
+## Po co to jest
 
-## Decyzje projektowe
+Strona łączy ofertę burgerów z klimatem salonu gier. Przewijanie prowadzi przez
+wnętrze, kuchnię i jedzenie, a menu pozwala przełączać prezentowane produkty.
 
-**Efekty są warunkowe, nie bezwarunkowe.** Hook sprawdza możliwości i preferencje
-urządzenia, zanim cokolwiek uruchomi:
+- **Historia miejsca:** kolejne fragmenty opowieści przełączają filmy w przypiętej sekcji.
+- **„Build your burger”:** warstwy burgera rozjeżdżają się na komputerze i odsłaniają opisy.
+- **Menu „Power-up”:** wybór pozycji zmienia prezentację produktu; elementy korzystają z animacji.
+- **Opinie, wydarzenia i lokalizacja:** sekcje uzupełniają prezentację restauracji.
+- **Pixel Pass:** demonstracja programu lojalnościowego z paskiem doświadczenia i nagrodami.
+- **FAQ i nawigacja:** rozwijane odpowiedzi, podświetlenie aktywnej sekcji i pasek postępu przewijania.
+
+| **Kuchnia** | **Prezentacja burgera** |
+|---|---|
+| ![Komputer: sekcja kuchni w opowieści o Pixel Bites](docs/zrzuty/d-kuchnia.webp) | ![Komputer: prezentacja burgera Pixel Bites](docs/zrzuty/d-burger.webp) |
+| **Burger rozłożony na składniki** | |
+| ![Komputer: warstwy burgera w sekcji Build your burger](docs/zrzuty/d-build-your-burger.webp) | |
+
+### Na telefonie
+
+Burger jest statycznym stosem warstw z listą składników. Ta sekcja nie jest przypinana
+do ekranu, a tło WebGL pozostaje wyłączone.
+
+| **Start** | **Wnętrze** | **Składniki burgera** |
+|---|---|---|
+| ![Telefon: początek strony Pixel Bites](docs/zrzuty/m-start.webp) | ![Telefon: prezentacja wnętrza restauracji Pixel Bites](docs/zrzuty/m-wnetrze.webp) | ![Telefon: burger i opisy jego składników](docs/zrzuty/m-build-your-burger.webp) |
+
+## Co jest w środku
+
+**Front:** React 18, TypeScript i Vite. GSAP ze ScrollTriggerem steruje przewijanymi
+scenami, Lenis odpowiada za płynne przewijanie, Three.js za tło WebGL,
+a Framer Motion za animacje komponentów.
+
+**Podział odpowiedzialności:** `App.tsx` składa sekcje, `useExperience` koordynuje
+efekty imperatywne, a komponenty utrzymują własny stan, np. wybór pozycji menu.
+Dane kontaktowe, nawigacja i odnośniki są wydzielone do `src/data/site.ts`.
+
+### Po co było przepisywać
+
+Projekt zaczął się jako jeden plik `pixelbites3.html` z bibliotekami ładowanymi z CDN.
+Ta wersja przenosi go na React, TypeScript i Vite. Podzieliłem stronę na komponenty sekcji i wydzieliłem obsługę przewijania oraz scen
+do hooka. Dzięki temu zmiana karty menu nie wymaga edycji tego samego pliku co
+inicjalizacja WebGL. Biblioteki są zależnościami npm, a `package-lock.json`
+zapisuje wersje użyte przy instalacji.
+
+### Decyzje projektowe
+
+**Efekty zależą od urządzenia i preferencji.** Hook przed inicjalizacją sprawdza:
 
 ```ts
-const reducedMotion  = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const hasFinePointer = window.matchMedia('(pointer: fine)').matches
-const isSmallScreen  = window.innerWidth <= 768
+const isSmallScreen = window.innerWidth <= 768
 
-const enableWebGL  = !reducedMotion && hasFinePointer && !isSmallScreen
+const enableWebGL = !reducedMotion && hasFinePointer && !isSmallScreen
 const enableCursor = hasFinePointer
 ```
 
-- **Tło WebGL tylko na desktopie z myszką.** Na telefonie kosztowałoby baterię
-  i klatki, a i tak nie ma tam kursora, na który reaguje.
-- **`prefers-reduced-motion` wyłącza płynne przewijanie i magnetyczne przyciski.**
-  Ktoś, kto ustawił w systemie ograniczenie ruchu, dostaje natywny scroll — to nie
-  jest ustawienie kosmetyczne, dla części osób animacje wywołują mdłości.
-- **Własny kursor tylko przy „fine pointer".** Na dotyku nie ma czego zastępować.
+WebGL uruchamia się na szerszym ekranie ze wskaźnikiem precyzyjnym, przy wyłączonym
+ograniczeniu ruchu. Three.js jest importowany dynamicznie dopiero w tej gałęzi.
+Własny kursor wymaga `pointer: fine`. Ograniczenie ruchu wyłącza Lenis,
+magnetyczne przyciski i duże animacje wejścia.
 
-**Jeden nasłuch `mousemove` obsługuje i kursor, i parallaks tła.** Dwa osobne
-liczyłyby pozycję dwa razy na każdy ruch myszy.
+**Jeden nasłuch ruchu dokumentu:** wspólnie aktualizuje pozycję kursora i paralaksę tła.
+Magnetyczne przyciski mają dodatkowe, lokalne nasłuchy.
 
-**Wszystkie nasłuchy zdejmuje jeden `AbortController`.** Przy odmontowaniu wystarczy
-`ac.abort()` — nie ma listy `removeEventListener`, z której łatwo coś pominąć.
+**Sprzątanie efektów:** AbortController usuwa nasłuchy podpięte do jego sygnału.
+Hook odłącza też obserwator, usuwa funkcje z zegara GSAP, zwalnia zasoby Three.js,
+cofa kontekst animacji i niszczy instancję Lenis.
 
-**Świadomie bez `<StrictMode>`.** GSAP/ScrollTrigger, Lenis i Three.js są imperatywne
-i trzymają stan poza Reactem; podwójne montowanie w trybie deweloperskim potrafiłoby
-zdublować ich inicjalizację. Sprzątanie jest zrobione w hooku — komentarz
-z uzasadnieniem stoi w `src/main.tsx`, żeby nikt tego nie „naprawił" przez przypadek.
+**Świadomie bez StrictMode:** uzasadnienie w `src/main.tsx` dotyczy ponownej
+inicjalizacji bibliotek imperatywnych w trybie deweloperskim. Sprzątanie pozostaje
+w hooku i działa przy odmontowaniu.
+
+**Osobny układ burgera na telefonie:** animowany rozkład warstw jest ograniczony
+do większych ekranów. Przy ograniczeniu ruchu komputer pokazuje od razu układ docelowy.
+
+**Zakres:** prezentacja restauracji z treścią w komponentach i danych lokalnych.
+Pixel Pass przedstawia wygląd programu nagród; nie prowadzi kont klientów.
 
 ## Uruchomienie
 
 ```bash
 npm install
-npm run dev      # serwer deweloperski (http://localhost:5173)
-npm run build    # produkcyjny build do ./dist
-npm run preview  # podgląd builda produkcyjnego
+npm run dev           # serwer deweloperski Vite
+npm run build         # sprawdzenie TypeScript i build do dist/
+npm run preview       # podgląd builda
+npm run lint          # ESLint bez dopuszczonych ostrzeżeń
+npm run format:check  # kontrola formatowania źródeł
 ```
 
 ## Struktura
 
-```
+```text
 src/
-  components/        każda sekcja strony jako osobny komponent
-    Navbar.tsx  Hero.tsx  StorySection.tsx  BurgerSection.tsx
-    PowerupMenu.tsx  Reviews.tsx  Events.tsx  Location.tsx
-    PixelPass.tsx  Faq.tsx  Cta.tsx  Footer.tsx
+  components/          sekcje strony, nawigacja, komunikat cookies i animacje
   hooks/
-    useExperience.ts   407 linii: Lenis, GSAP/ScrollTrigger, Three.js,
-                       własny kursor, magnetyczne przyciski, menu i FAQ
-                       — wraz z pełnym sprzątaniem
-  index.css            style przeniesione jeden do jednego z oryginału
-  App.tsx              składa wszystkie sekcje
+    useExperience.ts   GSAP, Lenis, WebGL, kursor, przewijanie i FAQ
+  data/
+    site.ts            kontakt, godziny, nawigacja i odnośniki
+  index.css            style strony i układy responsywne
+  App.tsx              składanie sekcji
   main.tsx             punkt wejścia
-public/                materiały (mp4 / png) serwowane spod „/"
+public/                filmy MP4, obrazy PNG, ikona i materiały do udostępniania
+docs/zrzuty/           zrzuty na komputerze i telefonie
 ```
 
-## Stack
-
-| Warstwa | Technologie |
-|---|---|
-| Framework | React 18, Vite, TypeScript |
-| Animacje | GSAP + ScrollTrigger |
-| Przewijanie | Lenis |
-| Tło 3D | Three.js |
-
-## Zakres
-
-Zadaniem było **przepisanie jeden do jednego**, więc style przeszły bez zmian razem
-z konwencjami oryginału — porządki w CSS byłyby tu osobną zmianą, która utrudniłaby
-porównanie efektu przed i po. Treść jest w komponentach; strona nie potrzebuje
-źródła danych ani panelu.
-
-Ryzyko regresji dotyczy tu wyglądu i płynności, a nie logiki — właściwym narzędziem
-są zrzuty porównawcze, nie asercje jednostkowe.
+Licencja: MIT
 
 ---
 
