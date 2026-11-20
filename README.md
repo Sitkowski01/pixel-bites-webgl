@@ -94,3 +94,7 @@ porównanie efektu przed i po. Treść jest w komponentach; strona nie potrzebuj
 
 Ryzyko regresji dotyczy tu wyglądu i płynności, a nie logiki — właściwym narzędziem
 są zrzuty porównawcze, nie asercje jednostkowe.
+
+---
+
+Projekt i wykonanie: **Mikołaj Sitek**, [SWN Development](https://swndevelopment.pl) · [mikolaj@swndevelopment.pl](mailto:mikolaj@swndevelopment.pl)

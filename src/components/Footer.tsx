@@ -64,6 +64,9 @@ export default function Footer() {
             </li>
           ))}
         </ul>
+        <p className="footer-legal" style={{ display: 'block', flexBasis: '100%', maxWidth: '100%', overflowWrap: 'anywhere' }}>
+          Projekt i wykonanie: Mikołaj Sitek, <a href="https://swndevelopment.pl" target="_blank" rel="noopener" className="interactive" style={{ textDecoration: 'underline' }}>SWN Development</a> · <a href="mailto:mikolaj@swndevelopment.pl" className="interactive" style={{ textDecoration: 'underline' }}>mikolaj@swndevelopment.pl</a>
+        </p>
       </div>
     </footer>
   )
