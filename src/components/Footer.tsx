@@ -65,7 +65,7 @@ export default function Footer() {
           ))}
         </ul>
         <p className="footer-legal" style={{ display: 'block', flexBasis: '100%', maxWidth: '100%', overflowWrap: 'anywhere' }}>
-          Projekt i wykonanie: <a href="https://sitekmikolaj.pl" target="_blank" rel="noopener" className="interactive" style={{ textDecoration: 'underline' }}>Mikołaj Sitek</a> · <a href="mailto:sitekmikolaj01@gmail.com" className="interactive" style={{ textDecoration: 'underline' }}>sitekmikolaj01@gmail.com</a>
+          Projekt i wykonanie: Mikołaj Sitek · <a href="https://sitekmikolaj.pl" target="_blank" rel="noopener" className="interactive" style={{ textDecoration: 'underline' }}>sitekmikolaj.pl</a> · <a href="mailto:sitekmikolaj01@gmail.com" className="interactive" style={{ textDecoration: 'underline' }}>sitekmikolaj01@gmail.com</a>
         </p>
       </div>
     </footer>
